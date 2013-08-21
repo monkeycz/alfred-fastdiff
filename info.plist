@@ -32,7 +32,7 @@
 	<key>createdby</key>
 	<string>monkeycz</string>
 	<key>description</key>
-	<string>Diff file or text segment with hotkey</string>
+	<string>Diff the selected file or text via hotkey</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
@@ -96,7 +96,7 @@
 				<integer>4</integer>
 				<key>script</key>
 				<string>#################################################
-# FastDiff for Alfred
+# FastDiff for Alfred 2
 #
 # Author: monkeycz
 # E-Mail: monkeycz@hotmail.com
@@ -189,6 +189,6 @@ Well, the vimdiff will be launched in a new Terminal tab page and diff your sele
 		</dict>
 	</dict>
 	<key>webaddress</key>
-	<string></string>
+	<string>https://github.com/monkeycz/alfred-fastdiff</string>
 </dict>
 </plist>
