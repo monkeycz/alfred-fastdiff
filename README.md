@@ -1,7 +1,7 @@
 FastDiff for Alfred 2
 ===============
 
-The default hotkey is **  + \ **. 
+The default hotkey is ` + \`. 
 
 * Step 1, Select a file or text segment then press the hotkey.
 * Step 2, Select another file or text segment then press the hotkey.
