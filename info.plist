@@ -131,14 +131,75 @@ def main():
 		a_file_path = get_compare_file_path(transfer_content)
 		b_file_path = get_compare_file_path(query)
 
-		os.system('''
-			osascript &lt;&lt; EOB
-			tell application "Terminal"
-				activate
-				set currentTab to do script "vimdiff %s %s"
+		if os.path.exists('/Applications/iTerm2.app'):
+			os.system('''
+app_existed=$(cat &lt;&lt; EOB &gt;&gt; /tmp/app_existed.scpt; osascript /tmp/app_existed.scpt "ITRM"; rm /tmp/app_existed.scpt;
+on run(argv)
+	try
+		set appCreator to argv as string
+	on error
+		set appCreator to ""
+	end try
+	tell application "System Events"
+		set appInstances to count (every process whose creator type is appCreator)
+		if appInstances &gt; 0 then
+			set appExisted to true
+		else
+			set appExisted to false
+		end if
+	end tell
+	return appExisted
+end run
+EOB)
+$(cat &lt;&lt; EOB &gt;&gt; /tmp/launch_iterm2.scpt; osascript /tmp/launch_iterm2.scpt "$app_existed"; rm /tmp/launch_iterm2.scpt;
+on run(argv)
+	try
+		set appExisted to argv as string
+	on error
+		set appExisted to "true"
+	end try
+	tell application "iTerm2"
+		activate
+		if appExisted is "true" then
+			set _term to current terminal
+			try
+				get _term
+			on error
+				set _term to (make new terminal)
+			end try
+			tell _term
+				launch session "Default"
+				set _session to current session
 			end tell
-			EOB
-		''' % (a_file_path, b_file_path))
+		else
+			try
+				set _session to current session of current terminal
+			on error
+				set _term to (make new terminal)
+				tell _term
+					launch session "Default"
+					set _session to current session
+				end tell
+			end try
+		end if
+		tell _session
+			write text "vimdiff %s %s; exit;"
+		end tell
+	end tell
+end run
+EOB)
+			''' % (a_file_path, b_file_path))
+		else:
+			os.system('''
+$(cat &lt;&lt; EOB &gt;&gt; /tmp/launch_terminal.scpt; osascript /tmp/launch_terminal.scpt; rm /tmp/launch_terminal.scpt;
+on run(argv)
+	tell application "Terminal"
+		activate
+		set currentTab to do script "vimdiff %s %s; exit;"
+	end tell
+end run
+EOB)
+			''' % (a_file_path, b_file_path))
 		time.sleep(2)
 
 		os.remove(transfer_file_path)
