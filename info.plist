@@ -183,7 +183,7 @@ on run(argv)
 			end try
 		end if
 		tell _session
-			write text "vimdiff %s %s; exit;"
+			write text "vimdiff \\"%s\\" \\"%s\\"; exit;"
 		end tell
 	end tell
 end run
@@ -195,7 +195,7 @@ $(cat &lt;&lt; EOB &gt;&gt; /tmp/launch_terminal.scpt; osascript /tmp/launch_ter
 on run(argv)
 	tell application "Terminal"
 		activate
-		set currentTab to do script "vimdiff %s %s; exit;"
+		set currentTab to do script "vimdiff \\"%s\\" \\"%s\\"; exit;"
 	end tell
 end run
 EOB)
