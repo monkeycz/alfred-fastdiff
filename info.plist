@@ -131,7 +131,15 @@ def main():
 		a_file_path = get_compare_file_path(transfer_content)
 		b_file_path = get_compare_file_path(query)
 
-		if os.path.exists('/Applications/iTerm2.app'):
+		if os.path.exists("/Applications/Xcode.app/Contents/Applications/FileMerge.app"):
+			os.system('''
+open "/Applications/Xcode.app/Contents/Applications/FileMerge.app" --args -left "%s" -right "%s"
+			''' % (a_file_path, b_file_path))
+		elif os.path.exists("/Developer/Applications/Utilities/FileMerge.app"):
+			os.system('''
+open "/Developer/Applications/Utilities/FileMerge.app" --args -left "%s" -right "%s"
+			''' % (a_file_path, b_file_path))
+		elif os.path.exists('/Applications/iTerm2.app'):
 			os.system('''
 app_existed=$(cat &lt;&lt; EOB &gt;&gt; /tmp/app_existed.scpt; osascript /tmp/app_existed.scpt "ITRM"; rm /tmp/app_existed.scpt;
 on run(argv)
