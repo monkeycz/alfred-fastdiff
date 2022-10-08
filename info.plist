@@ -15,6 +15,8 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 		<key>8ABFF811-A1C9-43B3-80E2-B19AB44A24B3</key>
@@ -26,6 +28,8 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 	</dict>
@@ -46,11 +50,7 @@
 				<false/>
 				<key>onlyshowifquerypopulated</key>
 				<true/>
-				<key>output</key>
-				<integer>0</integer>
 				<key>removeextension</key>
-				<false/>
-				<key>sticky</key>
 				<false/>
 				<key>text</key>
 				<string>{query}</string>
@@ -62,7 +62,7 @@
 			<key>uid</key>
 			<string>A29A6629-2607-4813-BDDC-741142B87C1B</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -71,6 +71,10 @@
 				<integer>0</integer>
 				<key>argument</key>
 				<integer>1</integer>
+				<key>focusedappvariable</key>
+				<false/>
+				<key>focusedappvariablename</key>
+				<string></string>
 				<key>hotkey</key>
 				<integer>42</integer>
 				<key>hotmod</key>
@@ -81,17 +85,21 @@
 				<false/>
 				<key>modsmode</key>
 				<integer>0</integer>
+				<key>relatedAppsMode</key>
+				<integer>0</integer>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.trigger.hotkey</string>
 			<key>uid</key>
 			<string>8ABFF811-A1C9-43B3-80E2-B19AB44A24B3</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
 				<key>escaping</key>
 				<integer>4</integer>
 				<key>script</key>
@@ -106,41 +114,61 @@ import os, tempfile, time
 
 tempfile_pool = set()
 
+
 def get_compare_file_path(query):
-	if query and query[0] == '/' and os.path.exists(query):
-		return query
-	else:
-		f = tempfile.NamedTemporaryFile(mode='w', prefix='fastdiff-')
-		f.write(query)
-		f.flush()
-		tempfile_pool.add(f)
-		return f.name
+    if query and query[0] == "/" and os.path.exists(query):
+        return query
+    else:
+        f = tempfile.NamedTemporaryFile(mode="w", prefix="fastdiff-")
+        f.write(query)
+        f.flush()
+        tempfile_pool.add(f)
+        return f.name
+
 
 def main():
-	query = """{query}"""
+    query = """{query}"""
 
-	if not query:
-		print 'Please select a file or text segment.'
-		return
+    if not query:
+        print("Please select a file or text segment.")
+        return
 
-	transfer_file_path = '/tmp/fastdiff'
+    transfer_file_path = "/tmp/fastdiff"
 
-	if os.path.exists(transfer_file_path):
-		transfer_content = open(transfer_file_path, 'r').read()
+    if os.path.exists(transfer_file_path):
+        transfer_content = open(transfer_file_path, "r").read()
 
-		a_file_path = get_compare_file_path(transfer_content)
-		b_file_path = get_compare_file_path(query)
+        a_file_path = get_compare_file_path(transfer_content)
+        b_file_path = get_compare_file_path(query)
 
-		if os.path.exists("/Applications/Xcode.app/Contents/Applications/FileMerge.app"):
-			os.system('''
+        if os.path.exists(
+            "/Applications/Xcode.app/Contents/Applications/FileMerge.app"
+        ):
+            os.system(
+                """
 open "/Applications/Xcode.app/Contents/Applications/FileMerge.app" --args -left "%s" -right "%s"
-			''' % (a_file_path, b_file_path))
-		elif os.path.exists("/Developer/Applications/Utilities/FileMerge.app"):
-			os.system('''
+			"""
+                % (a_file_path, b_file_path)
+            )
+        elif os.path.exists(
+            "/Applications/Xcode-beta.app/Contents/Applications/FileMerge.app"
+        ):
+            os.system(
+                """
+open "/Applications/Xcode-beta.app/Contents/Applications/FileMerge.app" --args -left "%s" -right "%s"
+			"""
+                % (a_file_path, b_file_path)
+            )
+        elif os.path.exists("/Developer/Applications/Utilities/FileMerge.app"):
+            os.system(
+                """
 open "/Developer/Applications/Utilities/FileMerge.app" --args -left "%s" -right "%s"
-			''' % (a_file_path, b_file_path))
-		elif os.path.exists('/Applications/iTerm2.app'):
-			os.system('''
+			"""
+                % (a_file_path, b_file_path)
+            )
+        elif os.path.exists("/Applications/iTerm2.app"):
+            os.system(
+                """
 app_existed=$(cat &lt;&lt; EOB &gt;&gt; /tmp/app_existed.scpt; osascript /tmp/app_existed.scpt "ITRM"; rm /tmp/app_existed.scpt;
 on run(argv)
 	try
@@ -196,9 +224,12 @@ on run(argv)
 	end tell
 end run
 EOB)
-			''' % (a_file_path, b_file_path))
-		else:
-			os.system('''
+			"""
+                % (a_file_path, b_file_path)
+            )
+        else:
+            os.system(
+                """
 $(cat &lt;&lt; EOB &gt;&gt; /tmp/launch_terminal.scpt; osascript /tmp/launch_terminal.scpt; rm /tmp/launch_terminal.scpt;
 on run(argv)
 	tell application "Terminal"
@@ -207,29 +238,36 @@ on run(argv)
 	end tell
 end run
 EOB)
-			''' % (a_file_path, b_file_path))
-		time.sleep(2)
+			"""
+                % (a_file_path, b_file_path)
+            )
+        time.sleep(2)
 
-		os.remove(transfer_file_path)
+        os.remove(transfer_file_path)
 
-		print 'Get diff `right` context. Diffing...'
-	else:
-		open(transfer_file_path, 'w').write(query)
-		print 'Get diff `left` content.'
+        print("Get diff `right` context. Diffing...")
+    else:
+        open(transfer_file_path, "w").write(query)
+        print("Get diff `left` content.")
+
 
 try:
-	main()
+    main()
 except Exception as e:
-	print 'Error: %s' % e</string>
+    print("Error: %s" % e)</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
 				<key>type</key>
-				<integer>3</integer>
+				<integer>9</integer>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>69FA6CCF-CB39-40AA-A1CD-73D5924F3FAD</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>2</integer>
 		</dict>
 	</array>
 	<key>readme</key>
@@ -243,20 +281,32 @@ Well, the vimdiff will be launched in a new Terminal tab page and diff your sele
 	<dict>
 		<key>69FA6CCF-CB39-40AA-A1CD-73D5924F3FAD</key>
 		<dict>
+			<key>xpos</key>
+			<real>500</real>
 			<key>ypos</key>
-			<real>10</real>
+			<real>15</real>
 		</dict>
 		<key>8ABFF811-A1C9-43B3-80E2-B19AB44A24B3</key>
 		<dict>
+			<key>xpos</key>
+			<real>100</real>
 			<key>ypos</key>
-			<real>10</real>
+			<real>15</real>
 		</dict>
 		<key>A29A6629-2607-4813-BDDC-741142B87C1B</key>
 		<dict>
+			<key>xpos</key>
+			<real>700</real>
 			<key>ypos</key>
-			<real>10</real>
+			<real>15</real>
 		</dict>
 	</dict>
+	<key>userconfigurationconfig</key>
+	<array/>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string></string>
 	<key>webaddress</key>
 	<string>https://github.com/monkeycz/alfred-fastdiff</string>
 </dict>
